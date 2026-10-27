@@ -1,0 +1,6 @@
+# Klartext darf nie ins Repository
+*.json
+Dienstplan*.html
+.staticrypt.json
+_build/
+node_modules/
