@@ -4,3 +4,4 @@ Dienstplan*.html
 .staticrypt.json
 _build/
 node_modules/
+_test/

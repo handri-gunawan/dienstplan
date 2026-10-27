@@ -23,10 +23,16 @@ if (-not $env:STATICRYPT_PASSWORD) {
 try {
   $tmp = Join-Path $PSScriptRoot "_build"
   if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
+  New-Item -ItemType Directory -Path (Join-Path $tmp "src") | Out-Null
+  $app = Join-Path $tmp "src\Dienstplan.html"
+
+  # App-Verhalten (Sprung zum aktuellen Wochenende, eigenes Symbol) ergaenzen
+  node tools\inject-app.js $Quelle $app
+  if ($LASTEXITCODE -ne 0) { throw "inject-app fehlgeschlagen" }
 
   # Salt liegt in .staticrypt.json (wird beim ersten Lauf angelegt und danach
   # wiederverwendet), damit "Passwort merken" auf dem iPhone Updates uebersteht.
-  npx --yes staticrypt@3 $Quelle -d $tmp --short --remember 365 `
+  npx --yes staticrypt@3 $app -d (Join-Path $tmp "out") --short --remember 365 `
     --template-title "Dienstplan JKEB" `
     --template-instructions "Bitte das Passwort eingeben." `
     --template-placeholder "Passwort" `
@@ -43,11 +49,11 @@ finally {
   if ($gesetzt) { Remove-Item Env:STATICRYPT_PASSWORD -ErrorAction SilentlyContinue }
 }
 
-Move-Item (Join-Path $tmp (Split-Path $Quelle -Leaf)) (Join-Path $PSScriptRoot "index.html") -Force
-Remove-Item $tmp -Recurse -Force
+Move-Item (Join-Path $tmp "out\Dienstplan.html") (Join-Path $PSScriptRoot "index.html") -Force
 
-node tools\inject-head.js $Quelle index.html
+node tools\inject-head.js $app index.html
 if ($LASTEXITCODE -ne 0) { throw "inject-head fehlgeschlagen" }
+Remove-Item $tmp -Recurse -Force
 
 # Sicherheitsnetz: in index.html darf kein Klartext aus dem Plan stehen.
 foreach ($w in @("Geburtstag", "Sonntagschule", "Konsumsi", "Hauskreis")) {
