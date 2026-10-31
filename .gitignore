@@ -5,3 +5,9 @@ Dienstplan*.html
 _build/
 node_modules/
 _test/
+_pruefung/
+# Nur lokal benoetigt (Passwort-Hinterlegung, automatische Veroeffentlichung)
+Passwort hinterlegen.cmd
+passwort_hinterlegen.ps1
+veroeffentlichen_automatisch.ps1
+tools/credman.ps1
